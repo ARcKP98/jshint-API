@@ -22,27 +22,30 @@ function processOptions(form) {
 }
 
 async function postForm(e) {
-    const form = processOptions (new FormData(document.getElementById('checksform')));
+
+    const form = processOptions(new FormData(document.getElementById("checksform")));
 
     const response = await fetch(API_URL, {
         method: "POST",
         headers: {
-                "Authorization": API_KEY,
-            },
-        body: form
+            "Authorization": API_KEY,
+        },
+        body: form,
     });
+
     const data = await response.json();
 
     if (response.ok) {
         displayErrors(data);
     } else {
+        displayException(data);
         throw new Error(data.error);
     }
 
 }
 
 
-async function getStatus(e){
+async function getStatus(e) {
     const queryString = `${API_URL}?api_key=${API_KEY}`
     const response = await fetch(queryString);
     const data = await response.json();
@@ -50,8 +53,9 @@ async function getStatus(e){
     if(response.ok) {
         displayStatus(data);
     } else {
+        displayException(data);
         throw new Error(data.error);
-    }
+}
 }
 
 function displayStatus(data) {
@@ -79,6 +83,17 @@ function displayErrors(data) {
             results += `<div class="error">${error.error}</div>`;
         }
     }
+
+    document.getElementById("resultsModalTitle").innerText = heading;
+    document.getElementById("results-content").innerHTML = results;
+    resultsModal.show();
+}
+
+function displayException(data){
+    let heading = "An Exception occured";
+    results = `<div>The API returned status code ${data.status_code}</div>`;
+    results += `<div>Error number: <strong>${data.error_no}</strong></div>`;
+    results += `<div>Error text: <span>${data.error}</span></div>`;
 
     document.getElementById("resultsModalTitle").innerText = heading;
     document.getElementById("results-content").innerHTML = results;
